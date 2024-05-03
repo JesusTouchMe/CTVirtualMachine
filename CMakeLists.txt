@@ -13,4 +13,5 @@ add_executable(CTVM
         include/core/value.h
         include/memory/object.h
         include/core/string.h
-        include/bytecode/bytecodeheader.h)
+        include/bytecode/bytecodeheader.h
+        include/bytecode/subroutine.h)
