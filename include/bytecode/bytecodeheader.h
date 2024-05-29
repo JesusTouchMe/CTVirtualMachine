@@ -6,6 +6,8 @@
 typedef struct CTBytecodeHeader {
     u16 arch;
     CTString name;
+    u16 globalVariableCount;
+    u8* entry;
 } CTBytecodeHeader;
 
 #endif //BYTECODEHEADER_H

@@ -14,4 +14,20 @@ add_executable(CTVM
         include/memory/object.h
         include/core/string.h
         include/bytecode/bytecodeheader.h
-        include/bytecode/subroutine.h)
+        include/bytecode/subroutine.h
+        include/bytecode/module.h
+        include/util/vector.h
+        src/util/vector.c
+        include/core/constpool.h
+        include/core/stack.h
+        include/executor/context.h
+        src/core/vm.c
+        src/core/stack.c
+        src/executor/context.c
+        src/bytecode/module.c
+        include/util/fileutils.h
+        src/util/fileutils.c
+    include/executor/code.h
+    src/executor/code.c
+    src/executor/instruction.c
+)

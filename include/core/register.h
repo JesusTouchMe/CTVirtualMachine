@@ -33,11 +33,17 @@
 #define FP 27
 #define FLAG 28
 
+#define FLAG_EQ 0x0001
+#define FLAG_LF 0x0002
+#define FLAG_GF 0x0004
+
 #define REGISTER_ID_LOW 0
 #define REGISTER_ID_HIGH 28
 
 #define GetRegister(registers, id) (registers[id])
 #define IsValidRegisterID(id) (id >= REGISTER_ID_LOW && id <= REGISTER_ID_HIGH)
+
+#define SetFlag(registers, flag) GetRegister(registers, FLAG).as_long |= flag
 
 typedef CTValue registers_t[29];
 
