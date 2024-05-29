@@ -39,7 +39,7 @@
 
 // utility macros
 #define ret_none(...) return CT_null
-#define regalloc(name) register __auto_type name
+#define regalloc(name) register const __auto_type name
 
 CTValue ExecuteInstruction(CTVM* vm, u8 opcode, bool wide) {
     // should not be touched outside a macro
