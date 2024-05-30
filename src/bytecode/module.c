@@ -78,6 +78,7 @@ void ReleaseModule(CTVM* vm, CTModule* module) {
     }
 
     free(module->globalVariables.data);
+    free(module->constPool.data);
     free(module->headerBytes);
 
     VectorFree((Vector(void)*) &module->subroutines);

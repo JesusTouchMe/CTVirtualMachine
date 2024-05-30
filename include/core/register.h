@@ -40,10 +40,11 @@
 #define REGISTER_ID_LOW 0
 #define REGISTER_ID_HIGH 28
 
-#define GetRegister(registers, id) (registers[id])
-#define IsValidRegisterID(id) (id >= REGISTER_ID_LOW && id <= REGISTER_ID_HIGH)
+#define GetRegister(registers, id) ((registers)[id])
+#define IsValidRegisterID(id) ((id) >= REGISTER_ID_LOW && (id) <= REGISTER_ID_HIGH)
 
-#define SetFlag(registers, flag) GetRegister(registers, FLAG).as_long |= flag
+#define GetFlag(registers, flag) (GetRegister((registers), FLAG).as_long & (flag))
+#define SetFlag(registers, flag) (GetRegister((registers), FLAG).as_long |= (flag))
 
 typedef CTValue registers_t[29];
 

@@ -19,6 +19,6 @@ typedef union CTValue {
     CTObject* as_object;
 } CTValue;
 
-#define CT_null (CTValue) 0
+#define CT_null (CTValue) {0}
 
 #endif //VALUE_H

@@ -1,7 +1,6 @@
 #ifndef VM_H
 #define VM_H
 
-#include "bytecode/bytecodeheader.h"
 #include "bytecode/module.h"
 #include "core/register.h"
 #include "core/stack.h"
@@ -18,6 +17,10 @@ typedef struct CTVM {
 
 void StartVM();
 
+void ReleaseVM();
+
 CTVM* GetVM();
+
+__attribute__((__noreturn__)) void Exit(i32 code);
 
 #endif //VM_H

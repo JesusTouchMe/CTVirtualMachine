@@ -19,6 +19,6 @@ void GetExecutionContext(CTExecutionContext* executionContext);
 /**
  * Prepares the execution context to begin running within a module and its entry. Only use on newly created and initialized VM and ExecutionContext.
  */
-void EnterExecution(CTExecutionContext* executionContext, CTModule* module);
+void EnterExecution(CTVM* vm, CTModule* module);
 
 #endif //CTVM_CONTEXT_H

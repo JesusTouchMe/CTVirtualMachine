@@ -13,6 +13,8 @@ typedef struct CTStack {
 
 void CreateStack(CTStack* stack);
 
+void ReleaseStack(CTStack* stack);
+
 void PushValue(CTVM* vm, CTValue value);
 
 CTValue PopValue(CTVM* vm);

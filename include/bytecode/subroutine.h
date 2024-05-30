@@ -3,6 +3,9 @@
 
 #include "defines.h"
 #include "core/string.h"
+#include "core/value.h"
+
+typedef struct CTVM CTVM;
 
 typedef enum CTSubroutineVisibility {
     PUBLIC = 1,
@@ -16,5 +19,7 @@ typedef struct CTSubroutine {
     u16 frameSize; // amount of variables to allocate in its frame
     u8* entry;
 } CTSubroutine;
+
+typedef CTValue (*native_subroutine_t)(CTVM* vm);
 
 #endif //SUBROUTINE_H

@@ -1,5 +1,7 @@
 #include "core/vm.h"
 
+#include <stdlib.h>
+
 static CTVM vm = {0};
 
 void StartVM() {
@@ -16,9 +18,37 @@ void StartVM() {
     GetRegister(vm.registers, FP).as_value_ptr = vm.stack.data;
 }
 
+void ReleaseVM() {
+    if (vm.modules == null) {
+        return;
+    }
+
+    size_t size = VectorSize((Vector(void)*) &vm.modules);
+    for (size_t i = 0; i < size; i++) {
+        free(vm.modules[i].globalVariables.data);
+        free(vm.modules[i].constPool.data);
+        free(vm.modules[i].headerBytes);
+
+        VectorFree((Vector(void)*) &vm.modules[i].subroutines);
+    }
+
+    VectorFree((Vector(void)*) &vm.modules);
+    ReleaseStack(&vm.stack);
+
+    vm.modules = null;
+}
+
 CTVM* GetVM() {
     if (vm.modules == null) {
         return null;
     }
     return &vm;
+}
+
+void Exit(i32 code) {
+    if (vm.modules != null) {
+        ReleaseVM();
+    }
+
+    exit(code);
 }

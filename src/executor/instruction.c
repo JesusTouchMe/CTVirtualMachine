@@ -20,15 +20,15 @@
     (u32) ((t1 << 24) | (t2 << 16) | (t3 << 8) | t4); \
 })
 #define _op8() ({ \
-    u8 t1 = *operands++; \
-    u8 t2 = *operands++; \
-    u8 t3 = *operands++; \
-    u8 t4 = *operands++; \
-    u8 t5 = *operands++; \
-    u8 t6 = *operands++; \
-    u8 t7 = *operands++; \
-    u8 t8 = *operands++; \
-    (u32) ((t1 << 56) | (t2 << 48) | (t3 << 40) | (t4 << 32) | (t5 << 24) | (t6 << 16) | (t7 << 8) | t8); \
+    u64 t1 = *operands++; \
+    u64 t2 = *operands++; \
+    u64 t3 = *operands++; \
+    u64 t4 = *operands++; \
+    u64 t5 = *operands++; \
+    u64 t6 = *operands++; \
+    u64 t7 = *operands++; \
+    u64 t8 = *operands++; \
+    (u64) ((t1 << 56) | (t2 << 48) | (t3 << 40) | (t4 << 32) | (t5 << 24) | (t6 << 16) | (t7 << 8) | t8); \
 })
 
 #define op(name) u8 name = _op1()
@@ -40,6 +40,22 @@
 // utility macros
 #define ret_none(...) return CT_null
 #define regalloc(name) register const __auto_type name
+
+static inline void JumpUnconditional(CTVM* vm, u64 relative) {
+    GetRegister(vm->registers, PC).as_long += relative;
+}
+
+static inline void JumpConditional(CTVM* vm, u64 relative, u64 conditionFlag) {
+    if (GetFlag(vm->registers, conditionFlag)) {
+        JumpUnconditional(vm, relative);
+    }
+}
+
+static inline void JumpConditionalNot(CTVM* vm, u64 relative, u64 conditionFlag) {
+    if (!GetFlag(vm->registers, conditionFlag)) {
+        JumpUnconditional(vm, relative);
+    }
+}
 
 CTValue ExecuteInstruction(CTVM* vm, u8 opcode, bool wide) {
     // should not be touched outside a macro
@@ -126,7 +142,7 @@ CTValue ExecuteInstruction(CTVM* vm, u8 opcode, bool wide) {
         inst(SWAP, 2, (reg1, reg2)) {
             op(reg1);
             op(reg2);
-            CTValue reg1Value = GetRegister(vm->registers, reg1);
+            regalloc(reg1Value) = GetRegister(vm->registers, reg1);
 
             GetRegister(vm->registers, reg1) = GetRegister(vm->registers, reg2);
             GetRegister(vm->registers, reg2) = reg1Value;
@@ -341,6 +357,327 @@ CTValue ExecuteInstruction(CTVM* vm, u8 opcode, bool wide) {
             if (leftValue > rightValue) SetFlag(vm->registers, FLAG_GF);
 
             ret_none();
+        }
+
+        inst(JMP, 1, (reg)) {
+            op(reg);
+
+            JumpUnconditional(vm, GetRegister(vm->registers, reg).as_long);
+
+            ret_none();
+        }
+
+        inst(JMP_REL8, 1, (rel)) {
+            op(rel);
+
+            JumpUnconditional(vm, rel);
+
+            ret_none();
+        }
+
+        inst(JMP_REL32, 4, (rel)) {
+            op4(rel);
+
+            JumpUnconditional(vm, rel);
+
+            ret_none();
+        }
+
+        inst(JEQ, 1, (reg)) {
+            op(reg);
+
+            JumpConditional(vm, GetRegister(vm->registers, reg).as_long, FLAG_EQ);
+
+            ret_none();
+        }
+
+        inst(JEQ_REL8, 1, (rel)) {
+            op(rel);
+
+            JumpConditional(vm, rel, FLAG_EQ);
+
+            ret_none();
+        }
+
+        inst(JEQ_REL32, 4, (rel)) {
+            op4(rel);
+
+            JumpConditional(vm, rel, FLAG_EQ);
+
+            ret_none();
+        }
+
+        inst(JNE, 1, (reg)) {
+            op(reg);
+
+            JumpConditionalNot(vm, GetRegister(vm->registers, reg).as_long, FLAG_EQ | FLAG_LF | FLAG_GF);
+
+            ret_none();
+        }
+
+        inst(JNE_REL8, 1, (rel)) {
+            op(rel);
+
+            JumpConditionalNot(vm, rel, FLAG_EQ | FLAG_LF | FLAG_GF);
+
+            ret_none();
+        }
+
+        inst(JNE_REL32, 4, (rel)) {
+            op4(rel);
+
+            JumpConditionalNot(vm, rel, FLAG_EQ | FLAG_LF | FLAG_GF);
+
+            ret_none();
+        }
+
+        inst(JLT, 1, (reg)) {
+            op(reg);
+
+            JumpConditional(vm, GetRegister(vm->registers, reg).as_long, FLAG_LF);
+
+            ret_none();
+        }
+
+        inst(JLT_REL8, 1, (rel)) {
+            op(rel);
+
+            JumpConditional(vm, rel, FLAG_LF);
+
+            ret_none();
+        }
+
+        inst(JLT_REL32, 4, (rel)) {
+            op4(rel);
+
+            JumpConditional(vm, rel, FLAG_LF);
+
+            ret_none();
+        }
+
+        inst(JGT, 1, (reg)) {
+            op(reg);
+
+            JumpConditional(vm, GetRegister(vm->registers, reg).as_long, FLAG_GF);
+
+            ret_none();
+        }
+
+        inst(JGT_REL8, 1, (rel)) {
+            op(rel);
+
+            JumpConditional(vm, rel, FLAG_GF);
+
+            ret_none();
+        }
+
+        inst(JGT_REL32, 4, (rel)) {
+            op4(rel);
+
+            JumpConditional(vm, rel, FLAG_GF);
+
+            ret_none();
+        }
+
+        inst(JLE, 1, (reg)) {
+            op(reg);
+
+            JumpConditional(vm, GetRegister(vm->registers, reg).as_long, FLAG_EQ | FLAG_LF);
+
+            ret_none();
+        }
+
+        inst(JLE_REL8, 1, (rel)) {
+            op(rel);
+
+            JumpConditional(vm, rel, FLAG_EQ | FLAG_LF);
+
+            ret_none();
+        }
+
+        inst(JLE_REL32, 4, (rel)) {
+            op4(rel);
+
+            JumpConditional(vm, rel, FLAG_EQ | FLAG_LF);
+
+            ret_none();
+        }
+
+        inst(JGE, 1, (reg)) {
+            op(reg);
+
+            JumpConditional(vm, GetRegister(vm->registers, reg).as_long, FLAG_EQ | FLAG_GF);
+
+            ret_none();
+        }
+
+        inst(JGE_REL8, 1, (rel)) {
+            op(rel);
+
+            JumpConditional(vm, rel, FLAG_EQ | FLAG_GF);
+
+            ret_none();
+        }
+
+        inst(JGE_REL32, 4, (rel)) {
+            op4(rel);
+
+            JumpConditional(vm, rel, FLAG_EQ | FLAG_GF);
+
+            ret_none();
+        }
+
+        inst(GOTO, 2, (loc)) {
+            op2(loc);
+
+            GetRegister(vm->registers, PC).as_ptr = vm->executionContext.activeModule->code + loc;
+
+            ret_none();
+        }
+
+        inst(GOTO_W, 4, (loc)) {
+            op4(loc);
+
+            GetRegister(vm->registers, PC).as_ptr = vm->executionContext.activeModule->code + loc;
+
+            ret_none();
+        }
+
+        inst(ENTER, 1, (frameSize)) {
+            op(frameSize);
+
+            PushValue(vm, GetRegister(vm->registers, FP));
+            GetRegister(vm->registers, FP) = GetRegister(vm->registers, SP);
+            GetRegister(vm->registers, SP).as_value_ptr += frameSize;
+
+            ret_none();
+        }
+
+        inst(ENTER_0, 0) {
+            PushValue(vm, GetRegister(vm->registers, FP));
+            GetRegister(vm->registers, FP) = GetRegister(vm->registers, SP);
+
+            ret_none();
+        }
+
+        inst(LEAVE, 0) {
+            GetRegister(vm->registers, SP) = GetRegister(vm->registers, FP);
+            GetRegister(vm->registers, FP) = PopValue(vm);
+
+            ret_none();
+        }
+
+        inst(JSR, 2, (branch)) {
+            op2(branch);
+
+            PushValue(vm, GetRegister(vm->registers, PC));
+            GetRegister(vm->registers, PC).as_ptr = vm->executionContext.activeModule->code + branch;
+
+            ret_none();
+        }
+
+        inst(JSR_W, 4, (branch)) {
+            op4(branch);
+
+            PushValue(vm, GetRegister(vm->registers, PC));
+            GetRegister(vm->registers, PC).as_ptr = vm->executionContext.activeModule->code + branch;
+
+            ret_none();
+        }
+
+        inst(CALL, 2, (index)) {
+            op2(index);
+            regalloc(subroutine) = (CTSubroutine*) vm->executionContext.activeModule->constPool.data[index].as_ptr;
+
+            if (subroutine->visibility == NATIVE) {
+                native_subroutine_t native = (native_subroutine_t) subroutine->entry;
+
+                GetRegister(vm->registers, ACC) = native(vm);
+            } else {
+                PushValue(vm, GetRegister(vm->registers, PC));
+                GetRegister(vm->registers, PC).as_ptr = subroutine->entry;
+
+                PushValue(vm, GetRegister(vm->registers, FP));
+                GetRegister(vm->registers, FP) = GetRegister(vm->registers, SP);
+                GetRegister(vm->registers, SP).as_value_ptr += subroutine->frameSize;
+
+                PushValue(vm, (CTValue) {.as_ptr = (u8*) vm->executionContext.currentSubroutine});
+                vm->executionContext.currentSubroutine = subroutine;
+            }
+
+            ret_none();
+        }
+
+        inst(RSR, 0) {
+            GetRegister(vm->registers, PC) = PopValue(vm);
+
+            ret_none();
+        }
+
+        inst(RET, 0) {
+            if (vm->executionContext.currentSubroutine == null) {
+                Exit(GetRegister(vm->registers, ACC).as_int);
+            }
+
+            regalloc(subroutine) = (CTSubroutine*) PopValue(vm).as_ptr;
+
+            GetRegister(vm->registers, SP) = GetRegister(vm->registers, FP);
+            GetRegister(vm->registers, FP) = PopValue(vm);
+
+            GetRegister(vm->registers, PC) = PopValue(vm);
+
+            vm->executionContext.currentSubroutine = subroutine;
+
+            ret_none();
+        }
+
+        inst(LDI_8, 2, (dest, immediate)) {
+            op(dest);
+            op(immediate);
+
+            GetRegister(vm->registers, dest).as_byte = immediate;
+
+            ret_none();
+        }
+
+        inst(LDI_16, 3, (dest, immediate)) {
+            op(dest);
+            op2(immediate);
+
+            GetRegister(vm->registers, dest).as_short = immediate;
+
+            ret_none();
+        }
+
+        inst(LDI_32, 5, (dest, immediate)) {
+            op(dest);
+            op4(immediate);
+
+            GetRegister(vm->registers, dest).as_int = immediate;
+
+            ret_none();
+        }
+
+        inst(LDI_64, 9, (dest, immediate)) {
+            op(dest);
+            op8(immediate);
+
+            GetRegister(vm->registers, dest).as_long = immediate;
+
+            ret_none();
+        }
+
+        inst(WIDE, 0) {
+            u8 nextOpcode = *(GetRegister(vm->registers, PC).as_ptr++);
+            ExecuteInstruction(vm, nextOpcode, true);
+
+            ret_none();
+        }
+
+        default: {
+            // unknown opcode or unimplemented
+            printf("%u\n", opcode);
+            Exit(1);
         }
     }
 }

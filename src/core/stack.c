@@ -7,6 +7,11 @@ void CreateStack(CTStack* stack) {
     stack->data = (CTValue*) malloc(sizeof(CTValue) * 120000);
 }
 
+void ReleaseStack(CTStack* stack) {
+    free(stack->data);
+    stack->data = null;
+}
+
 void PushValue(CTVM* vm, CTValue value) {
     *(++GetRegister(vm->registers, SP).as_value_ptr) = value;
 }
