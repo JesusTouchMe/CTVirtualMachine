@@ -1,11 +1,13 @@
 #ifndef CTVM_MODULE_H
 #define CTVM_MODULE_H
 
-#include <stdio.h>
 #include "bytecode/bytecodeheader.h"
 #include "bytecode/subroutine.h"
 #include "core/constpool.h"
+#include "util/fileutils.h"
 #include "util/vector.h"
+
+#define CODE_SEGMENT 0x436F6465
 
 typedef struct CTVM CTVM;
 
@@ -25,8 +27,10 @@ typedef struct CTModule {
     u8* code;
 } CTModule;
 
-void OpenModule(CTVM* vm, FILE* bytecodeFile);
+CTModule* OpenModule(CTVM* vm, File bytecodeFile);
 
 void ReleaseModule(CTVM* vm, CTModule* module);
+
+CTSubroutine* FindSubroutine(CTModule* module, CTString* name);
 
 #endif //CTVM_MODULE_H

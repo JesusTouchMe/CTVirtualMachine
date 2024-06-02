@@ -10,5 +10,6 @@ void GetExecutionContext(CTExecutionContext* executionContext) {
 
 void EnterExecution(CTVM* vm, CTModule* module) {
     vm->executionContext.activeModule = module;
+    vm->executionContext.shouldExecute = true;
     GetRegister(vm->registers, PC).as_ptr = module->header.entry; // since a module enters at an address and not a declared subroutine (as far as the vm is aware), we have to set position and not currentSubroutine
 }

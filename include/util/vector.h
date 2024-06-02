@@ -4,6 +4,7 @@
 #include "defines.h"
 
 #define Vector(type) type*
+#define LifetimeVector(type) attribute(cleanup(CleanupVectorFree)) type*
 
 #if _MSC_VER == 0 || __STDC_VERSION__ >= 202311L || defined __cpp_decltype
 
@@ -48,6 +49,8 @@
 Vector(void) VectorCreate(void);
 
 void VectorFree(Vector(void)* vector);
+
+void CleanupVectorFree(void* vector);
 
 void* _VectorAddDst(Vector(void)* vectorPtr, size_t typeSize);
 

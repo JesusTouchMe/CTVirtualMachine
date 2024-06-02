@@ -36,6 +36,10 @@ void VectorFree(Vector(void)* vector) {
     free(GetVectorHeader(*vector));
 }
 
+void CleanupVectorFree(void* vector) {
+    VectorFree((Vector(void)*) vector);
+}
+
 void* _VectorAddDst(Vector(void)* vectorPtr, size_t typeSize) {
     VectorHeader* header = GetVectorHeader(*vectorPtr);
 

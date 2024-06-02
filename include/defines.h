@@ -26,4 +26,6 @@ typedef u8 bool;
 
 #define null nullptr
 
+#define attribute(attr) __attribute__((attr))
+
 #endif //TYPES_H

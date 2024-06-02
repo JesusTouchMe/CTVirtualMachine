@@ -30,4 +30,6 @@ add_executable(CTVM
     include/executor/code.h
     src/executor/code.c
     src/executor/instruction.c
+    src/core/string.c
+    include/util/pointer.h
 )
